@@ -7,19 +7,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
 import com.example.newsapp.R
 import com.example.newsapp.Data.Article
-
+import com.example.newsapp.Misc.DateChanger
 
 class ArticlesAdapter(articleList: List<Article>) : RecyclerView.Adapter<ArticlesAdapter.ViewHolder>() {
 
     companion object {
         var sharedPreferenceAnimation: Boolean?=null
-        private val inputDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-        private val outputDateFormat = SimpleDateFormat("yyyy-MM-dd  HH:mm", Locale.US)
+
     }
 
     var articlesList: MutableList<Article>
@@ -55,13 +51,15 @@ class ArticlesAdapter(articleList: List<Article>) : RecyclerView.Adapter<Article
         return articlesList.size
     }
 
+
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val article = articlesList[position]
+        val data = DateChanger()
 
-            if(article.fields.thumbnail!=null)
+        // Display the picture of the current article in that TextView
         Glide.with(itemView).load(article.fields.thumbnail).into(holder.thumbnailImageView)
-
         // Display the title of the current article in that TextView
         holder.titleTextView.text = article.webTitle
         //Display the section of the current article in that TextView
@@ -69,18 +67,7 @@ class ArticlesAdapter(articleList: List<Article>) : RecyclerView.Adapter<Article
         //Display the author of the current article in that TextView
         if(article.tags.size !=0)
         holder.authorTextView.text = article.tags[0].webTitle
-
-        //Parse the String which holds the date and time (original "2018-04-15T08:35:35Z" to
-        //"2018-04-15" and "08:35:35", and from "08:35:35" to "08:35")
-        val originalDate: String = article.webPublicationDate
-        try
-        {
-            val d: Date? = inputDateFormat.parse(originalDate)
-            val formattedDateTime: String = outputDateFormat.format(d!!)
-
-            // Display the date of the current news story in that TextView
-            holder.dateTextView.text = formattedDateTime
-        } catch (e: ParseException) {
-            e.printStackTrace() }
+        //Display the date of the current article in that TextView
+        holder.dateTextView.text= data.getDate(article.webPublicationDate)
     }
 }
