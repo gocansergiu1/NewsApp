@@ -12,15 +12,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsapp.Data.Article
+import com.example.newsapp.Models.Article
 import com.example.newsapp.Adapter.ArticlesAdapter
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
 
 import com.example.newsapp.R
-import com.example.newsapp.Network.ApiClient
+import com.example.newsapp.Repository.ApiClient
 import retrofit2.Call
 import retrofit2.Response
-import com.example.newsapp.Data.baseJsonResponse
+import com.example.newsapp.Repository.baseJsonResponse
 
 
 @Suppress("NAME_SHADOWING")
@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity(),
 
     }
 
-
     /** Adapter for the list of articles */
     private lateinit var mAdapter: ArticlesAdapter
 
@@ -39,10 +38,7 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var articlesRecycleView: RecyclerView
 
-    private var articlesToShow: Int = 20
-
-
-
+   // private var articlesToShow: Int = 20
    // val service = RetrofitInstance.retrofitInstance.create(ArticlesWebService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +54,7 @@ class MainActivity : AppCompatActivity(),
 //        var editor = mPreferences.edit()
 
         articlesRecycleView = findViewById(R.id.list)
-
+/*
         articlesRecycleView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
@@ -68,9 +64,9 @@ class MainActivity : AppCompatActivity(),
                 }
 
             }
-        })
+        })*/
 
-        mAdapter = ArticlesAdapter(articles.value!!)
+            mAdapter = ArticlesAdapter(articles.value!!)
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
         articlesRecycleView.layoutManager = mLayoutManager
 
@@ -90,11 +86,7 @@ class MainActivity : AppCompatActivity(),
         // And register to be notified of preference changes
         // So we know when the user has adjusted the query settings
         prefs.registerOnSharedPreferenceChangeListener(this)
-
-
-
     }
-
 
     private fun getData(): LiveData<MutableList<Article>> {
         val articles = MutableLiveData<MutableList<Article>>()
@@ -109,7 +101,7 @@ class MainActivity : AppCompatActivity(),
 
                 articles.value = response.response.results
 
-                loadingSpinner.visibility=View.GONE //@TODO violation of Single Responsability Principle
+                loadingSpinner.visibility=View.GONE
                 //articlesRecycleView.adapter?.notifyDataSetChanged()
             }
 
@@ -121,7 +113,6 @@ class MainActivity : AppCompatActivity(),
 
         return articles
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)

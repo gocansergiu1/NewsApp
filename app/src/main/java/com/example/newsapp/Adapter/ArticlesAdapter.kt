@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsapp.R
-import com.example.newsapp.Data.Article
+import com.example.newsapp.Models.Article
 import com.example.newsapp.Misc.DateChanger
 
 class ArticlesAdapter(articleList: List<Article>) : RecyclerView.Adapter<ArticlesAdapter.ViewHolder>() {
@@ -19,7 +19,6 @@ class ArticlesAdapter(articleList: List<Article>) : RecyclerView.Adapter<Article
     }
 
     var articlesList: MutableList<Article>
-
     init {
         articlesList = articleList.toMutableList()
     }

@@ -1,4 +1,6 @@
-package com.example.newsapp.Data
+package com.example.newsapp.Models
+import com.example.newsapp.Repository.Fields
+import com.example.newsapp.Repository.Tags
 import com.google.gson.annotations.SerializedName
 
 data class Article (

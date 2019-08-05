@@ -1,4 +1,4 @@
-package com.example.newsapp.Data
+package com.example.newsapp.Repository
 import com.google.gson.annotations.SerializedName
 
 data class baseJsonResponse (@SerializedName("response") val response : Response)

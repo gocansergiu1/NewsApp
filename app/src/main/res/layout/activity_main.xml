@@ -2,23 +2,32 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+    <EditText android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_alignTop="@+id/list"
+              android:layout_marginTop="0dp"
+              android:hint="Search"
+              android:id="@+id/searchrx"
+              android:layout_marginLeft="0dp"
+              android:layout_marginStart="0dp"
+              android:layout_alignLeft="@+id/list"
+              android:layout_alignStart="@+id/list"/>
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/list"
+                                               android:layout_width="match_parent"
+                                               android:layout_height="wrap_content"
+                                               android:scrollbars="vertical"
+                                               android:divider="@null"
+                                               android:dividerHeight="0dp"
+                                               android:paddingTop="@dimen/padding"
+                                               android:paddingBottom="@dimen/padding"
+                                               android:layout_marginTop="0dp" android:layout_alignParentTop="true"/>
 
-    <androidx.recyclerview.widget.RecyclerView  android:id="@+id/list"
-                                                android:layout_width="match_parent"
-                                                android:layout_height="wrap_content"
-                                                android:scrollbars="vertical"
-                                                android:divider="@null"
-                                                android:dividerHeight="0dp"
-                                                android:paddingTop="@dimen/padding"
-                                                android:paddingBottom="@dimen/padding"
-                                                />
-
-  <!--  <TextView
-            android:id="@+id/empty_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>-->
+    <!--  <TextView
+              android:id="@+id/empty_view"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_centerInParent="true"
+              android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>-->
 
     <ProgressBar
             android:id="@+id/loading_spinner"

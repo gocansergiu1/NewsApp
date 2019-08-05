@@ -1,4 +1,4 @@
-package com.example.newsapp.Network
+package com.example.newsapp.Repository
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
