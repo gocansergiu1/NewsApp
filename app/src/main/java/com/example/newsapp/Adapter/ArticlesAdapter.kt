@@ -58,7 +58,7 @@ class ArticlesAdapter(articleList: List<Article>) : RecyclerView.Adapter<Article
         val data = DateChanger()
 
         // Display the picture of the current article in that TextView
-        Glide.with(itemView).load(article.fields.thumbnail).into(holder.thumbnailImageView)
+        Glide.with(itemView).load(article.fields?.thumbnail).into(holder.thumbnailImageView)
         // Display the title of the current article in that TextView
         holder.titleTextView.text = article.webTitle
         //Display the section of the current article in that TextView

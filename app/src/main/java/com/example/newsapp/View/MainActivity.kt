@@ -3,9 +3,12 @@ package com.example.newsapp.View
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +24,10 @@ import com.example.newsapp.Repository.ApiClient
 import retrofit2.Call
 import retrofit2.Response
 import com.example.newsapp.Repository.baseJsonResponse
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 @Suppress("NAME_SHADOWING")
@@ -38,6 +45,9 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var articlesRecycleView: RecyclerView
 
+    private var myCompositeDisposable: CompositeDisposable? = null
+
+
    // private var articlesToShow: Int = 20
    // val service = RetrofitInstance.retrofitInstance.create(ArticlesWebService::class.java)
 
@@ -49,22 +59,14 @@ class MainActivity : AppCompatActivity(),
 
         val articles: LiveData<MutableList<Article>> = getData()
 
+        myCompositeDisposable = CompositeDisposable()
 
+        var searchrx  = findViewById<EditText>(R.id.searchrx)
 //        val mPreferences = getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE);
 //        var editor = mPreferences.edit()
 
         articlesRecycleView = findViewById(R.id.list)
-/*
-        articlesRecycleView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
-                if (mAdapter.articlesList.size == articlesToShow) {
-                    //articlesRecycleView.smoothScrollToPosition(0)
-                    //mAdapter.clearData(articlesRecycleView)
-                }
-
-            }
-        })*/
 
             mAdapter = ArticlesAdapter(articles.value!!)
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
@@ -73,12 +75,38 @@ class MainActivity : AppCompatActivity(),
         articlesRecycleView.adapter = AlphaInAnimationAdapter(mAdapter)
 
 
+        // EditText pentru RX
+        searchrx.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+                myCompositeDisposable?.add(ApiClient.client.getArticlesRX(queue=p0.toString())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io()).subscribe{
+                        mAdapter.articlesList = it.response.results
+                        mAdapter.notifyDataSetChanged() })
+
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+        })
+
+        myCompositeDisposable?.add(ApiClient.client.getArticlesRX()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io()).subscribe{
+                mAdapter.articlesList = it.response.results
+                mAdapter.notifyDataSetChanged()})
+
+
         //data has changed , it will put articles
-        articles.observe(this, Observer {
+       /* articles.observe(this, Observer {
             mAdapter.articlesList = it
             mAdapter.notifyDataSetChanged()
 
-        })
+        })*/
 
         // Obtain a reference to the SharedPreferences file for this app
         val prefs: SharedPreferences = getSharedPreferences("filters", 0)
@@ -97,7 +125,7 @@ class MainActivity : AppCompatActivity(),
 
             override fun onResponse(call: Call<baseJsonResponse>, response: Response<baseJsonResponse>) {
 
-                var response: baseJsonResponse = response.body()
+                var response: baseJsonResponse= response.body()!!
 
                 articles.value = response.response.results
 
