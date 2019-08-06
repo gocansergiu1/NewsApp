@@ -24,7 +24,7 @@ object ApiClient {
                 .baseUrl(BASE_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) //Add a call adapter factory to support RxJava return types
                 .build()
 
             return retrofit.create(ArticlesWebService::class.java)

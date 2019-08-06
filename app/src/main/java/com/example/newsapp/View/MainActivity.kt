@@ -28,6 +28,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 
 @Suppress("NAME_SHADOWING")
@@ -66,13 +67,12 @@ class MainActivity : AppCompatActivity(),
 //        var editor = mPreferences.edit()
 
         articlesRecycleView = findViewById(R.id.list)
-
-
+        
             mAdapter = ArticlesAdapter(articles.value!!)
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
         articlesRecycleView.layoutManager = mLayoutManager
 
-        articlesRecycleView.adapter = AlphaInAnimationAdapter(mAdapter)
+       articlesRecycleView.adapter = AlphaInAnimationAdapter(mAdapter)
 
 
         // EditText pentru RX
@@ -95,8 +95,10 @@ class MainActivity : AppCompatActivity(),
         })
 
         myCompositeDisposable?.add(ApiClient.client.getArticlesRX()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(Schedulers.io()).subscribe{
+            .observeOn(AndroidSchedulers.mainThread()) // sends observable notif to android main ui thread
+                //ready to display data in our app UI
+            .subscribeOn(Schedulers.io()).subscribe{ //with Schedulers we create an alternative thread io,to go out of UI Thread
+                //here the observable should execute
                 mAdapter.articlesList = it.response.results
                 mAdapter.notifyDataSetChanged()})
 
