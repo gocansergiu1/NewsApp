@@ -31,16 +31,11 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
-
-@Suppress("NAME_SHADOWING")
 class MainActivity : AppCompatActivity(),
-    //android.app.LoaderManager.LoaderCallbacks<List<Article>>,
     SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
-
     }
 
-    /** Adapter for the list of articles */
     private lateinit var mAdapter: ArticlesAdapter
 
     private lateinit var loadingSpinner: View
@@ -49,26 +44,16 @@ class MainActivity : AppCompatActivity(),
 
     private var myCompositeDisposable: CompositeDisposable? = null
 
-
-   // private var articlesToShow: Int = 20
-   // val service = RetrofitInstance.retrofitInstance.create(ArticlesWebService::class.java)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         loadingSpinner = findViewById(R.id.loading_spinner)
 
-        //val articles: LiveData<MutableList<Article>> = getData()
-
         myCompositeDisposable = CompositeDisposable()
-
         var searchrx  = findViewById<EditText>(R.id.searchrx)
-//        val mPreferences = getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE);
-//        var editor = mPreferences.edit()
 
         articlesRecycleView = findViewById(R.id.list)
-
 
         mAdapter = ArticlesAdapter()
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
@@ -76,9 +61,7 @@ class MainActivity : AppCompatActivity(),
 
        articlesRecycleView.adapter = AlphaInAnimationAdapter(mAdapter)
 
-
         // EditText
-
         val textObs = Observable.create<String> {
 
             val listener = object : TextWatcher {
@@ -104,7 +87,6 @@ class MainActivity : AppCompatActivity(),
 
         }
 
-
         textObs.switchMap {
             ApiClient.client.getArticlesRX(it)
 
@@ -113,27 +95,8 @@ class MainActivity : AppCompatActivity(),
             .subscribe{
                mAdapter.articlesList=it.response.results
                 mAdapter.notifyDataSetChanged()
+
             }
-
-//        searchrx.addTextChangedListener(object : TextWatcher {
-//            override fun afterTextChanged(p0: Editable?) {
-//                myCompositeDisposable?.add(ApiClient.client.getArticlesRX(queue=p0.toString())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribeOn(Schedulers.io()).subscribe{
-//                        mAdapter.articlesList = it.response.results
-//                        mAdapter.notifyDataSetChanged() })
-//
-//            }
-//
-//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//
-//            }
-//
-//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//            }
-//        })
-/*
-
 
         myCompositeDisposable?.add(ApiClient.client.getArticlesRX()
             .observeOn(AndroidSchedulers.mainThread()) // sends observable notif to android main ui thread
@@ -141,15 +104,8 @@ class MainActivity : AppCompatActivity(),
             .subscribeOn(Schedulers.io()).subscribe{ //with Schedulers we create an alternative thread io,to go out of UI Thread
                 //here the observable should execute
                 mAdapter.articlesList = it.response.results
-                mAdapter.notifyDataSetChanged()})
-*/
-
-        //data has changed , it will put articles
-       /* articles.observe(this, Observer {
-            mAdapter.articlesList = it
-            mAdapter.notifyDataSetChanged()
-
-        })*/
+                mAdapter.notifyDataSetChanged()
+                loadingSpinner.visibility=View.GONE})
 
         // Obtain a reference to the SharedPreferences file for this app
         val prefs: SharedPreferences = getSharedPreferences("filters", 0)
@@ -158,33 +114,6 @@ class MainActivity : AppCompatActivity(),
         // So we know when the user has adjusted the query settings
         prefs.registerOnSharedPreferenceChangeListener(this)
     }
-
-    /*private fun getData(): LiveData<MutableList<Article>> {
-        val articles = MutableLiveData<MutableList<Article>>()
-
-        articles.value = mutableListOf()
-        val call: Call<baseJsonResponse> = ApiClient.client.getArticles()
-        call.enqueue(object : retrofit2.Callback<baseJsonResponse> {
-
-            override fun onResponse(call: Call<baseJsonResponse>, response: Response<baseJsonResponse>) {
-
-                var response: baseJsonResponse= response.body()!!
-
-                articles.value = response.response.results
-
-                loadingSpinner.visibility=View.GONE
-                //articlesRecycleView.adapter?.notifyDataSetChanged()
-            }
-
-            override fun onFailure(call: Call<baseJsonResponse>, t: Throwable?) {
-                articles.value = mutableListOf()
-            }
-
-        })
-
-        return articles
-    }
-*/
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
