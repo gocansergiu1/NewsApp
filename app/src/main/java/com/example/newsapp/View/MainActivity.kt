@@ -24,6 +24,7 @@ import com.example.newsapp.Repository.ApiClient
 import retrofit2.Call
 import retrofit2.Response
 import com.example.newsapp.Repository.baseJsonResponse
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity(),
 
         loadingSpinner = findViewById(R.id.loading_spinner)
 
-        val articles: LiveData<MutableList<Article>> = getData()
+        //val articles: LiveData<MutableList<Article>> = getData()
 
         myCompositeDisposable = CompositeDisposable()
 
@@ -67,32 +68,72 @@ class MainActivity : AppCompatActivity(),
 //        var editor = mPreferences.edit()
 
         articlesRecycleView = findViewById(R.id.list)
-        
-            mAdapter = ArticlesAdapter(articles.value!!)
+
+
+        mAdapter = ArticlesAdapter()
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
         articlesRecycleView.layoutManager = mLayoutManager
 
        articlesRecycleView.adapter = AlphaInAnimationAdapter(mAdapter)
 
 
-        // EditText pentru RX
-        searchrx.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
-                myCompositeDisposable?.add(ApiClient.client.getArticlesRX(queue=p0.toString())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io()).subscribe{
-                        mAdapter.articlesList = it.response.results
-                        mAdapter.notifyDataSetChanged() })
+        // EditText
 
+        val textObs = Observable.create<String> {
+
+            val listener = object : TextWatcher {
+                override fun afterTextChanged(text: Editable?) {
+                    if (text != null) {
+                        it.onNext(text.toString())
+                    }
+                }
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                }
             }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            searchrx.addTextChangedListener(listener)
 
+            it.setCancellable {
+                searchrx.removeTextChangedListener(listener)
             }
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        }
+
+
+        textObs.switchMap {
+            ApiClient.client.getArticlesRX(it)
+
+                .subscribeOn(Schedulers.io())
+        }.observeOn(AndroidSchedulers.mainThread())
+            .subscribe{
+               mAdapter.articlesList=it.response.results
+                mAdapter.notifyDataSetChanged()
             }
-        })
+
+//        searchrx.addTextChangedListener(object : TextWatcher {
+//            override fun afterTextChanged(p0: Editable?) {
+//                myCompositeDisposable?.add(ApiClient.client.getArticlesRX(queue=p0.toString())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribeOn(Schedulers.io()).subscribe{
+//                        mAdapter.articlesList = it.response.results
+//                        mAdapter.notifyDataSetChanged() })
+//
+//            }
+//
+//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//
+//            }
+//
+//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//            }
+//        })
+/*
+
 
         myCompositeDisposable?.add(ApiClient.client.getArticlesRX()
             .observeOn(AndroidSchedulers.mainThread()) // sends observable notif to android main ui thread
@@ -101,7 +142,7 @@ class MainActivity : AppCompatActivity(),
                 //here the observable should execute
                 mAdapter.articlesList = it.response.results
                 mAdapter.notifyDataSetChanged()})
-
+*/
 
         //data has changed , it will put articles
        /* articles.observe(this, Observer {
@@ -118,7 +159,7 @@ class MainActivity : AppCompatActivity(),
         prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
-    private fun getData(): LiveData<MutableList<Article>> {
+    /*private fun getData(): LiveData<MutableList<Article>> {
         val articles = MutableLiveData<MutableList<Article>>()
 
         articles.value = mutableListOf()
@@ -143,7 +184,7 @@ class MainActivity : AppCompatActivity(),
 
         return articles
     }
-
+*/
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
