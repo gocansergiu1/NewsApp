@@ -10,26 +10,18 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsapp.Models.Article
 import com.example.newsapp.Adapter.ArticlesAdapter
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
-
 import com.example.newsapp.R
 import com.example.newsapp.Repository.ApiClient
-import retrofit2.Call
-import retrofit2.Response
-import com.example.newsapp.Repository.baseJsonResponse
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
 class MainActivity : AppCompatActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
@@ -43,7 +35,9 @@ class MainActivity : AppCompatActivity(),
     private lateinit var articlesRecycleView: RecyclerView
 
     private var myCompositeDisposable: CompositeDisposable? = null
+    private lateinit var database: DatabaseReference
 
+    val firebaseUrl="https://newsapp-de8c7.firebaseio.com/"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -61,6 +55,10 @@ class MainActivity : AppCompatActivity(),
 
        articlesRecycleView.adapter = AlphaInAnimationAdapter(mAdapter)
 
+
+        database = FirebaseDatabase.getInstance().reference
+
+        //ref:Firebase = new Firebase(Config.fire)
         // EditText
         val textObs = Observable.create<String> {
 
@@ -89,13 +87,11 @@ class MainActivity : AppCompatActivity(),
 
         textObs.switchMap {
             ApiClient.client.getArticlesRX(it)
-
-                .subscribeOn(Schedulers.io())
-        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()) }
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe{
                mAdapter.articlesList=it.response.results
                 mAdapter.notifyDataSetChanged()
-
             }
 
         myCompositeDisposable?.add(ApiClient.client.getArticlesRX()
@@ -105,7 +101,8 @@ class MainActivity : AppCompatActivity(),
                 //here the observable should execute
                 mAdapter.articlesList = it.response.results
                 mAdapter.notifyDataSetChanged()
-                loadingSpinner.visibility=View.GONE})
+                loadingSpinner.visibility=View.GONE
+              })
 
         // Obtain a reference to the SharedPreferences file for this app
         val prefs: SharedPreferences = getSharedPreferences("filters", 0)
